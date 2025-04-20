@@ -9,59 +9,59 @@ import { createHorizontal } from "./gojsUtils/horizontalTemplate";
 import { createCircularMeter } from "./gojsUtils/circularMeterTemplate";
 import { createBarMeter } from "./gojsUtils/barMeterTemplate";
 
-function initDiagram() {
-  // set your license key here before creating the diagram: go.Diagram.licenseKey = "...";
-  const diagram = new go.Diagram({
-    "undoManager.isEnabled": true, // must be set to allow for model change listening
-    // 'undoManager.maxHistoryLength': 0,  // uncomment disable undo/redo functionality
-    "clickCreatingTool.archetypeNodeData": {
-      text: "new node",
-      color: "lightblue",
-    },
-    model: new go.GraphLinksModel({
-      linkKeyProperty: "key", // IMPORTANT! must be defined for merges and data sync when using GraphLinksModel
-    }),
-  });
+function App() {
+  function initDiagram() {
+    // set your license key here before creating the diagram: go.Diagram.licenseKey = "...";
+    const diagram = new go.Diagram({
+      "undoManager.isEnabled": true, // must be set to allow for model change listening
+      // 'undoManager.maxHistoryLength': 0,  // uncomment disable undo/redo functionality
+      "clickCreatingTool.archetypeNodeData": {
+        text: "new node",
+        color: "lightblue",
+      },
+      model: new go.GraphLinksModel({
+        linkKeyProperty: "key", // IMPORTANT! must be defined for merges and data sync when using GraphLinksModel
+      }),
+    });
 
-  // 定義基本節點模板
-  diagram.nodeTemplate = new go.Node("Auto")
-    .bindTwoWay("location", "loc", go.Point.parse, go.Point.stringify)
-    .add(
-      new go.Shape("RoundedRectangle", {
-        name: "SHAPE",
-        fill: "white",
-        strokeWidth: 0,
-      }).bind("fill", "color"),
-      new go.TextBlock({ margin: 8, editable: true }).bindTwoWay("text")
+    // 定義基本節點模板
+    diagram.nodeTemplate = new go.Node("Auto")
+      .bindTwoWay("location", "loc", go.Point.parse, go.Point.stringify)
+      .add(
+        new go.Shape("RoundedRectangle", {
+          name: "SHAPE",
+          fill: "white",
+          strokeWidth: 0,
+        }).bind("fill", "color"),
+        new go.TextBlock({ margin: 8, editable: true }).bindTwoWay("text")
+      );
+
+    //繪製連接線
+    diagram.linkTemplate = new go.Link({
+      routing: go.Routing.AvoidsNodes,
+      corner: 12,
+    }).add(
+      new go.Shape({ isPanelMain: true, stroke: "gray", strokeWidth: 9 }),
+      new go.Shape({ isPanelMain: true, stroke: "lightgray", strokeWidth: 5 }),
+      new go.Shape({ isPanelMain: true, stroke: "whitesmoke" })
     );
 
-  //繪製連接線
-  diagram.linkTemplate = new go.Link({
-    routing: go.Routing.AvoidsNodes,
-    corner: 12,
-  }).add(
-    new go.Shape({ isPanelMain: true, stroke: "gray", strokeWidth: 9 }),
-    new go.Shape({ isPanelMain: true, stroke: "lightgray", strokeWidth: 5 }),
-    new go.Shape({ isPanelMain: true, stroke: "whitesmoke" })
-  );
+    // 新增元件
+    diagram.nodeTemplateMap.add("NeedleMeter", createNeedleMeter());
+    diagram.nodeTemplateMap.add("Vertical", createVertical());
+    diagram.nodeTemplateMap.add("Horizontal", createHorizontal());
+    diagram.nodeTemplateMap.add("CircularMeter", createCircularMeter());
+    diagram.nodeTemplateMap.add("BarMeter", createBarMeter());
 
-  // 新增元件
-  diagram.nodeTemplateMap.add("NeedleMeter", createNeedleMeter());
-  diagram.nodeTemplateMap.add("Vertical", createVertical());
-  diagram.nodeTemplateMap.add("Horizontal", createHorizontal());
-  diagram.nodeTemplateMap.add("CircularMeter", createCircularMeter());
-  diagram.nodeTemplateMap.add("BarMeter", createBarMeter());
+    return diagram;
+  }
 
-  return diagram;
-}
+  // 擴展 go.Panel 類以添加 apply 方法，方便連續方法調用
+  go.Panel.prototype.apply = function (func) {
+    func(this);
+    return this;
+  };
 
-// 擴展 go.Panel 類以添加 apply 方法，方便連續方法調用
-go.Panel.prototype.apply = function (func) {
-  func(this);
-  return this;
-};
-
-function App() {
   return (
     <div>
       <ReactDiagram

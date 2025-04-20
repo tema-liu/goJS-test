@@ -14,6 +14,7 @@ export function commonNodeStyle() {
     locationSpot: go.Spot.Center,
     fromSpot: go.Spot.BottomRightSides,
     toSpot: go.Spot.TopLeftSides,
+    movable: false, //禁止拖拉
   };
 }
 

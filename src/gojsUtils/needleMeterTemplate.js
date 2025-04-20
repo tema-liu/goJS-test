@@ -8,7 +8,6 @@ import {
 export function createNeedleMeter() {
   return new go.Node("Auto", {
     ...commonNodeStyle(),
-    movable: false,
   })
     .apply(applyCommonNodeStyleBindings)
     .add(
